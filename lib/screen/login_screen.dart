@@ -1,38 +1,31 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_firebase/pages/home_screen.dart';
+import 'package:flutter_firebase/screen/home_screen.dart';
+import 'package:flutter_firebase/screen/signup_screen.dart';
 
-class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
-  late FirebaseAuth instance = FirebaseAuth.instance;
+class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailCtrl = TextEditingController();
   TextEditingController passwordCtrl = TextEditingController();
-  TextEditingController nameCtrl = TextEditingController();
+  late FirebaseAuth instance = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register'),
+        title: const Text('Login'),
       ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              TextField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(hintText: 'Name'),
-                onChanged: (value) {},
-              ),
-              const SizedBox(height: 10),
               TextField(
                 controller: emailCtrl,
                 decoration: const InputDecoration(hintText: 'Email'),
@@ -44,13 +37,13 @@ class _SignupScreenState extends State<SignupScreen> {
                 decoration: const InputDecoration(hintText: 'Password'),
                 onChanged: (value) {},
               ),
+              const SizedBox(height: 10),
               ElevatedButton(
-                child: const Text('Register'),
+                child: const Text('Login'),
                 onPressed: () async {
                   try {
-                    UserCredential credential = await instance.createUserWithEmailAndPassword(
-                        email: emailCtrl.text, password: passwordCtrl.text);
-                    // ignore: use_build_context_synchronously
+                    UserCredential credential =
+                        await instance.signInWithEmailAndPassword(email: emailCtrl.text, password: passwordCtrl.text);
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -60,12 +53,23 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                     );
                   } on FirebaseAuthException catch (e) {
-                    if (e.code == 'weak-password') {
-                      print('weak-password');
-                    } else if (e.code == 'email-already-in-use') {
-                      print('email-already-in-use');
+                    if (e.code == 'user-not-found') {
+                      print('user-not-found');
+                    } else if (e.code == 'wrong-password') {
+                      print('wrong-password');
                     }
                   }
+                },
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                child: const Text('Register'),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return const SignupScreen();
+                    },
+                  ));
                 },
               ),
             ],
